@@ -14,9 +14,9 @@ pub struct Enemy {
     sprite: Sprite,
     speed: f32,
     hp: f32,
-    position: Vector2, // center
+    position: Vector2,          // center
     relative_hitbox: Rectangle, // now is absolute
-    should_draw_with_damage_taken: bool
+    damaged_time: f32,
 }
 
 impl Enemy {
@@ -33,20 +33,22 @@ impl Enemy {
             hp,
             position,
             relative_hitbox,
-            should_draw_with_damage_taken: false,
+            damaged_time: 0.0,
         }
     }
 
     pub fn update(&mut self, dt: f32, player_position: Vector2) {
         self.position += (player_position - self.position).normalized() * self.speed * dt;
+        self.damaged_time -= dt;
     }
 
     pub fn draw(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
         self.sprite.set_position(self.position);
-        if self.should_draw_with_damage_taken {
-            
-        }
         self.sprite.draw(d);
+        if self.damaged_time > 0.0 {
+            self.sprite
+                .draw_with_tint(Color::new(252, 146, 139, 255), d);
+        }
     }
 
     pub fn hitbox(&self) -> Rectangle {
@@ -64,11 +66,10 @@ impl Enemy {
 
     pub fn take_damage(&mut self, damage: f32) {
         self.hp -= damage;
+        self.damaged_time = 0.1;
     }
 
-    pub fn get_hit(&mut self, bullet: &mut Bullet) {
-
-    }
+    pub fn get_hit(&mut self, bullet: &mut Bullet) {}
 }
 
 pub struct EnemyFactory {}

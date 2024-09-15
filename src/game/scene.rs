@@ -96,7 +96,7 @@ impl GameScene {
 
         for enemy in &mut self.enemies {
             enemy.draw(d);
-            enemy.draw_hitbox(d);
+            // enemy.draw_hitbox(d);
         }
     }
 }
@@ -122,8 +122,6 @@ impl Scene for GameScene {
         for bullet in self.player.shoot(direction) {
             self.bullets.push(bullet)
         }
-
-        println!("{:.?}", self.bullets.len());
 
         self.player.move_camera_if_should(&mut self.camera);
 
