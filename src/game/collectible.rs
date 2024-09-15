@@ -1,6 +1,6 @@
 use raylib::ffi::Vector2;
 
-use crate::engine::Sprite;
+use crate::core::Sprite;
 
 pub struct DroppedCollectible {
     collectible: Collectible,

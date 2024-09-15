@@ -1,4 +1,3 @@
-pub mod map;
 pub mod enemy;
 pub mod player;
 pub mod collectible;

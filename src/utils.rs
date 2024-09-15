@@ -2,7 +2,9 @@ use core::slice;
 use std::{backtrace, ffi::CString, os::windows::thread};
 
 use raylib::{
+    camera::Camera2D,
     ffi,
+    math::Vector2,
     texture::{Image, RaylibTexture2D, Texture2D},
     RaylibHandle, RaylibThread,
 };
@@ -59,4 +61,12 @@ impl RaylibHandleExtension for RaylibHandle {
 
         Ok(textures)
     }
+}
+
+pub fn is_visible(position: &Vector2, camera: &Camera2D) -> bool {
+    // if point is in camera.target +- offset
+    camera.target.x - camera.offset.x <= position.x
+        && position.x <= camera.target.x + camera.offset.x
+        && camera.target.y - camera.offset.y <= position.y
+        && position.y <= camera.target.y + camera.offset.y
 }

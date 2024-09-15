@@ -1,6 +1,6 @@
 use raylib::prelude::*;
 
-use crate::{animation::spring::{SpringAnimator, SpringSpec}, engine::Sprite, input_handler::poll_movement, ui::{Scene}};
+use crate::{animation::spring::{SpringAnimator, SpringSpec}, core::{Sprite, input_handler::poll_movement}, ui::{Scene}};
 
 pub struct HomeScene {
     selected: i32,

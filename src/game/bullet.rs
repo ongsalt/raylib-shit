@@ -1,5 +1,5 @@
 use raylib::prelude::*;
-use crate::engine::{sprite, Sprite};
+use crate::core::{Sprite};
 
 use super::{effect::{self, StatusEffect}, enemy::Enemy};
 

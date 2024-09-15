@@ -2,7 +2,6 @@ use std::rc::Rc;
 
 use raylib::prelude::*;
 
-
 // I should make a gif handler
 #[derive(Clone, Debug)]
 pub struct Sprite {
@@ -57,14 +56,17 @@ impl Sprite {
         );
     }
 
-    pub fn draw_nth_texture(&mut self, texture_index: usize, d: &mut RaylibMode2D<RaylibDrawHandle>) {
-
+    pub fn draw_with_tint(&mut self, tint: Color, d: &mut RaylibMode2D<RaylibDrawHandle>) {
+        if self.textures.len() == 0 {
+            return;
+        }
+        self.cycle_frame();
         d.draw_texture_ex(
             self.textures[self.frame_index].as_ref(),
             self.position - self.offset * self.scale,
             self.rotation,
             self.scale,
-            Color::WHITE,
+            tint,
         );
     }
 

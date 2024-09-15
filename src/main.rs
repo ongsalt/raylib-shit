@@ -1,15 +1,15 @@
 use game::scene::GameScene;
 use raylib::prelude::*;
-use scene::{home::HomeScene};
+use scenes::{home::HomeScene};
 use ui::Scene;
 
 mod animation;
-mod engine;
+mod core;
 mod game;
-mod input_handler;
-mod scene;
+mod scenes;
 mod ui;
 mod utils;
+mod data;
 
 fn main() {
     println!("Hello, world!");

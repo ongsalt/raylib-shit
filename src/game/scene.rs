@@ -1,15 +1,21 @@
 use raylib::prelude::*;
 
 use crate::{
-    engine::{registry::TextureRegistry, Sprite},
-    game::{
-        bullet::Bullet, collectible::DroppedCollectible, enemy::{self, Enemy, EnemyFactory}, player::Player
+    core::{
+        input_handler::poll_movement, texture_registry::TextureRegistry, Map, Sprite, Updatable,
     },
-    input_handler::poll_movement,
+    data::maps::create_first_map,
+    game::{
+        bullet::Bullet,
+        collectible::DroppedCollectible,
+        enemy::{self, Enemy, EnemyFactory},
+        player::Player,
+    },
     ui::Scene,
 };
 
 pub struct GameScene {
+    map: Map,
     paused: bool,
     camera: Camera2D,
     player: Player,
@@ -30,7 +36,10 @@ impl GameScene {
 
         let mut texture_registry = TextureRegistry::new();
 
+        let map = create_first_map(rl, thread, &mut texture_registry);
+
         Self {
+            map,
             paused: false,
             camera,
             enemies: vec![EnemyFactory::tee(rl, thread, &mut texture_registry)],
@@ -42,7 +51,7 @@ impl GameScene {
     }
 }
 
-impl GameScene {
+impl Updatable for GameScene {
     fn update(&mut self, dt: f32) {
         self.player.update(dt);
 
@@ -52,7 +61,7 @@ impl GameScene {
 
             if bullet.should_die() {
                 to_remove_indexes.push(index)
-            }   
+            }
 
             for enemy in &mut self.enemies {
                 if bullet.is_collided(&enemy) {
@@ -63,7 +72,7 @@ impl GameScene {
         }
 
         // Reverse becuase array will shift if we remove from the first
-        for index in to_remove_indexes.into_iter().rev() {   
+        for index in to_remove_indexes.into_iter().rev() {
             self.bullets.remove(index);
         }
 
@@ -71,11 +80,13 @@ impl GameScene {
             enemy.update(dt, self.player.position());
         }
     }
-    
-    
+}
+
+impl GameScene {
     fn draw(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
         // stage
-        d.draw_rectangle(-10, -10, 1000, 1000, Color::GRAY);
+        // d.draw_rectangle(-10, -10, 1000, 1000, Color::GRAY);
+        self.map.draw(d, &self.camera);
 
         self.player.draw(d);
 
@@ -107,7 +118,7 @@ impl Scene for GameScene {
 
         let displacement = poll_movement(&rl);
         self.player.movee(displacement, dt);
-        
+
         for bullet in self.player.shoot(direction) {
             self.bullets.push(bullet)
         }
@@ -121,9 +132,8 @@ impl Scene for GameScene {
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(Color::BLACK);
 
-        let mut d = d.begin_mode2D(self.camera);
-        self.draw(&mut d);        
-
+        let mut d = d.begin_mode2D(&self.camera);
+        self.draw(&mut d);
     }
 
     fn pause(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread) {

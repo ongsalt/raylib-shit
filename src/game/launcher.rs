@@ -2,7 +2,7 @@ use std::vec;
 
 use raylib::prelude::*;
 
-use crate::engine::{registry::TextureRegistry, Sprite};
+use crate::core::{texture_registry::TextureRegistry, Sprite};
 
 use super::bullet::{Bullet, BulletBuilder};
 

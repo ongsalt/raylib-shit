@@ -3,13 +3,14 @@ use std::{rc::Rc, vec};
 use raylib::prelude::*;
 
 use crate::{
-    engine::{registry::TextureRegistry, Sprite},
+    core::{texture_registry::TextureRegistry, Sprite},
     utils::{ImageExtension, RaylibHandleExtension},
 };
 
 use super::{
     bullet::{self, Bullet},
-    collectible::Item, launcher::{Launcher, LauncherFactory},
+    collectible::Item,
+    launcher::{Launcher, LauncherFactory},
 };
 
 pub const PLAYER_SIZE: f32 = 80.0;
@@ -36,7 +37,7 @@ impl Player {
             .unwrap()
             .into_iter()
             .enumerate()
-            .map(|(index, it)| texture_registry.add(format!("player-frame-{}", index), it))
+            .map(|(index, it)| texture_registry.add(format!("player:sprite:{}", index).as_str(), it))
             .collect();
 
         let mut sprite = Sprite::new(textures);
@@ -66,7 +67,10 @@ impl Player {
     }
 
     pub fn shoot(&mut self, direction: f32) -> Vec<Bullet> {
-        self.launchers.iter_mut().flat_map(|it| it.launch(self.position, direction)).collect()
+        self.launchers
+            .iter_mut()
+            .flat_map(|it| it.launch(self.position, direction))
+            .collect()
     }
 
     pub fn movee(&mut self, displacement: Vector2, dt: f32) {

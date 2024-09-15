@@ -6,7 +6,7 @@ use raylib::{
     RaylibHandle, RaylibThread,
 };
 
-use crate::engine::{registry::TextureRegistry, Sprite};
+use crate::core::{texture_registry::TextureRegistry, Sprite};
 
 use super::bullet::{self, Bullet};
 
