@@ -1,52 +1,39 @@
-use std::ops::Mul;
-
-use engine::{
-    interpolator::{Interpolator},
-    Sprite,
-};
-use input_handler::poll_movement;
+use game::scene::GameScene;
 use raylib::prelude::*;
-use ui::{Scene, SceneRunner};
+use scene::{home::HomeScene};
+use ui::Scene;
 
+mod animation;
 mod engine;
+mod game;
 mod input_handler;
 mod scene;
 mod ui;
 mod utils;
-mod animation;
 
 fn main() {
     println!("Hello, world!");
-    let (mut rl, mut thread) = raylib::init().size(640, 480).resizable().build();
+    let (mut rl, mut thread) = raylib::init().size(720, 560).resizable().build();
     rl.set_target_fps(60);
 
-    let scenes: Vec<Scene> = vec![
-        scene::sample::run,
-        scene::home::run,
+    let mut scenes: Vec<Box<dyn Scene>> = vec![
+        Box::new(HomeScene::new()),
+        Box::new(GameScene::new(&mut rl, &thread)),
     ];
 
-    let mut active_scene = scenes[0];
-    let mut runner: SceneRunner = active_scene(&mut rl, &thread);
+    let mut active_scene = 0;
+
     // let mut overlay: Option<SceneRunner> = None;
 
     while !rl.window_should_close() {
         if rl.is_key_pressed(KeyboardKey::KEY_X) {
-            if active_scene == scenes[0] {
-                active_scene = scenes[1]
+            if active_scene == 0 {
+                active_scene = 1;
             } else {
-                active_scene = scenes[0]
+                active_scene = 0;
             }
-            runner = active_scene(&mut rl, &thread)
-            // if overlay.is_none() {
-            //     overlay = Some(scenes[1](&mut rl, &thread))
-            // } else {
-            //     overlay = None
-            // }
+            scenes[active_scene].setup(&mut rl, &thread);
         }
-
-        runner(&mut rl, &mut thread);
-        // if let Some(ref mut overlay) = overlay {
-        //     overlay(&mut rl, &mut thread);
-        // }
+        scenes[active_scene].run(&mut rl, &thread)
     }
 }
