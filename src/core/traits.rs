@@ -8,8 +8,6 @@ pub trait Updatable {
     fn update(&mut self, dt: f32);
 }
 
-// pub trait Drawable {
-//     // TODO: cycle gif frame from update and make this not mut
-//     fn draw(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>, camera: &Camera2D);
-// }
-
+pub trait Drawable {
+    fn draw(&self, d: &mut RaylibMode2D<RaylibDrawHandle>, camera: &Camera2D);
+}

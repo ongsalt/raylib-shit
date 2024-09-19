@@ -1,7 +1,10 @@
+use crate::core::Sprite;
 use raylib::prelude::*;
-use crate::core::{Sprite};
 
-use super::{effect::{self, StatusEffect}, enemy::Enemy};
+use super::{
+    effect::{self, StatusEffect},
+    enemy::Enemy,
+};
 
 // Or should I made a bullet type lookup map
 // then just pass bullet reference around
@@ -14,7 +17,7 @@ pub struct BulletBuilder {
     pub damage: f32,
     pub angular_velocity: f32,
     pub effects: Vec<StatusEffect>,
-    pub lifetime: f32, 
+    pub lifetime: f32,
 }
 
 impl BulletBuilder {
@@ -26,7 +29,7 @@ impl BulletBuilder {
         damage: f32,
         angular_velocity: f32,
         effects: Vec<StatusEffect>,
-        lifetime: f32
+        lifetime: f32,
     ) -> Self {
         Self {
             sprite,
@@ -36,7 +39,7 @@ impl BulletBuilder {
             damage,
             angular_velocity,
             effects,
-            lifetime
+            lifetime,
         }
     }
 
@@ -49,7 +52,7 @@ impl BulletBuilder {
             relative_hitbox: self.relative_hitbox,
             damage: self.damage,
             angular_velocity: self.angular_velocity,
-            effects: self.effects.clone(), // TODO: make this reference
+            effects: self.effects.clone(), // TODO: make this a bit flag
             lifetime: self.lifetime,
         }
     }
@@ -64,7 +67,7 @@ pub struct Bullet {
     pub damage: f32,
     pub angular_velocity: f32,
     pub effects: Vec<StatusEffect>,
-    pub lifetime: f32
+    pub lifetime: f32,
 }
 
 impl Bullet {
@@ -76,7 +79,7 @@ impl Bullet {
         damage: f32,
         angular_velocity: f32,
         effects: Vec<StatusEffect>,
-        lifetime: f32
+        lifetime: f32,
     ) -> Self {
         Self {
             sprite,
@@ -86,7 +89,7 @@ impl Bullet {
             damage,
             angular_velocity,
             effects,
-            lifetime
+            lifetime,
         }
     }
 
@@ -114,6 +117,6 @@ impl Bullet {
     }
 
     pub fn should_die(&self) -> bool {
-        self.lifetime < 0.0
+        self.lifetime <= 0.0
     }
 }

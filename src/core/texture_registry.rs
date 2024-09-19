@@ -2,6 +2,7 @@ use std::{collections::HashMap, rc::Rc};
 
 use raylib::prelude::*;
 
+// should have made this behind a rc
 pub struct TextureRegistry {
     registry: HashMap<String, Rc<Texture2D>>,
 }
@@ -57,5 +58,24 @@ impl TextureRegistry {
 
     pub fn get(&self, id: &str) -> Option<Rc<Texture2D>> {
         self.registry.get(id).cloned()
+    }
+
+    // Manually call after the stage is drop
+    pub fn flush(&mut self) {
+        // let mut to_drops: Vec<&String> = self
+        //     .registry
+        //     .iter()
+        //     .filter(|(key, texture)| Rc::strong_count(texture) == 1)
+        //     .map(|(key, _)| key)
+        //     .collect();
+        let mut to_drops = vec![];
+        for (key, value) in &mut self.registry {
+            if Rc::strong_count(&value) == 1 {
+                to_drops.push(key.clone());
+            }
+        }
+        for to_drop in to_drops {
+            self.registry.remove(&to_drop);
+        }
     }
 }

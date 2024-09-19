@@ -30,21 +30,23 @@ impl Player {
         thread: &RaylibThread,
         texture_registry: &mut TextureRegistry,
     ) -> Self {
-        let image = Image::load_image_anim("resources/slime.gif").unwrap();
+        let image = Image::load_image_anim("assets/slime.gif").unwrap();
 
         let textures = rl
             .load_textures_from_image(thread, &image, 24)
             .unwrap()
             .into_iter()
             .enumerate()
-            .map(|(index, it)| texture_registry.add(format!("player:sprite:{}", index).as_str(), it))
+            .map(|(index, it)| {
+                texture_registry.add(format!("player:sprite:{}", index).as_str(), it)
+            })
             .collect();
 
         let mut sprite = Sprite::new(textures);
         sprite.set_scale(0.5);
-        sprite.set_animation_speed(4);
+        sprite.set_frame_rate(24);
 
-        // let bullet_image = Image::load_image("resources/crystal_water.png").unwrap();
+        // let bullet_image = Image::load_image("assets/crystal_water.png").unwrap();
         // let bullet_texture = rl.load_texture_from_image(thread, &bullet_image).unwrap();
         // let bullet_textures = vec![texture_registry.add("bullet-1", bullet_texture)];
 

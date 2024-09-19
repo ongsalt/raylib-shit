@@ -42,7 +42,7 @@ impl GameScene {
             map,
             paused: false,
             camera,
-            enemies: vec![EnemyFactory::tee(rl, thread, &mut texture_registry)],
+            enemies: vec![EnemyFactory::tee(rl, thread, &mut texture_registry, Vector2::new(100.0, 100.0))],
             player: Player::new(rl, thread, &mut texture_registry),
             texture_registry,
             collectibles: vec![],
@@ -55,29 +55,39 @@ impl Updatable for GameScene {
     fn update(&mut self, dt: f32) {
         self.player.update(dt);
 
-        let mut to_remove_indexes = vec![];
-        for (index, bullet) in &mut self.bullets.iter_mut().enumerate() {
+        let mut bullets_to_remove = vec![];
+        let mut enemies_to_remove = vec![];
+        for (bullet_index, bullet) in self.bullets.iter_mut().enumerate() {
             bullet.update(dt);
 
             if bullet.should_die() {
-                to_remove_indexes.push(index)
+                bullets_to_remove.push(bullet_index)
             }
 
-            for enemy in &mut self.enemies {
+            for (enemy_index, enemy) in &mut self.enemies.iter_mut().enumerate() {
                 if bullet.is_collided(&enemy) {
                     enemy.take_damage(bullet.damage);
-                    to_remove_indexes.push(index)
+                    bullets_to_remove.push(bullet_index);
+
+                    // TODO: object pool
+                    if enemy.is_dead() {
+                        enemies_to_remove.push(enemy_index)
+                    }
                 }
             }
         }
 
+        for enemy in &mut self.enemies {
+            enemy.update(dt, self.player.position());
+        }
+
         // Reverse becuase array will shift if we remove from the first
-        for index in to_remove_indexes.into_iter().rev() {
+        for index in bullets_to_remove.into_iter().rev() {
             self.bullets.remove(index);
         }
 
-        for enemy in &mut self.enemies {
-            enemy.update(dt, self.player.position());
+        for index in enemies_to_remove.into_iter().rev() {
+            let dead = self.enemies.remove(index);
         }
     }
 }

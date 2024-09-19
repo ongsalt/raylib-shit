@@ -1,12 +1,12 @@
+pub mod input_handler;
 pub mod interpolator;
-mod sprite;
+mod map;
 pub mod physics;
+mod sprite;
+pub mod stage;
 pub mod texture_registry;
 mod traits;
-pub mod stage;
-pub mod input_handler;
-mod map;
 
+pub use map::*;
 pub use sprite::*;
 pub use traits::*;
-pub use map::*;

@@ -51,7 +51,7 @@ impl LauncherFactory {
     ) -> Launcher {
         let texture = match texture_registry.get("crystal_water") {
             None => {
-                let image = Image::load_image("resources/crystal_water.png").unwrap();
+                let image = Image::load_image("assets/crystal_water.png").unwrap();
                 let texture = rl.load_texture_from_image(thread, &image).unwrap();
                 texture_registry.add("crystal_water", texture)
             }
@@ -70,7 +70,7 @@ impl LauncherFactory {
                 100.0,
                 0.0,
                 vec![],
-                5.0
+                5.0,
             )
         })
     }

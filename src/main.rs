@@ -1,15 +1,17 @@
+#![windows_subsystem = "windows"]
+
 use game::scene::GameScene;
 use raylib::prelude::*;
-use scenes::{home::HomeScene};
+use scenes::home::HomeScene;
 use ui::Scene;
 
 mod animation;
 mod core;
+mod data;
 mod game;
 mod scenes;
 mod ui;
 mod utils;
-mod data;
 
 fn main() {
     println!("Hello, world!");

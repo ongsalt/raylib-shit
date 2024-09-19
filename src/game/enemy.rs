@@ -10,6 +10,25 @@ use crate::core::{texture_registry::TextureRegistry, Sprite};
 
 use super::bullet::{self, Bullet};
 
+pub enum EnemyState {
+    Ready, // ready to be use
+    Alive,
+    Dying, // playing dead animation
+    Died, // can be reuse later
+}
+
+impl EnemyState {
+    fn should_render(&self) -> bool {
+        match self {
+            EnemyState::Ready => false,
+            EnemyState::Alive => true,
+            EnemyState::Dying => true,
+            EnemyState::Died => false,
+        }
+    }
+}
+
+// Should create an object pool and make is_dead flag
 pub struct Enemy {
     sprite: Sprite,
     speed: f32,
@@ -17,6 +36,7 @@ pub struct Enemy {
     position: Vector2,          // center
     relative_hitbox: Rectangle, // now is absolute
     damaged_time: f32,
+    state: EnemyState
 }
 
 impl Enemy {
@@ -34,6 +54,7 @@ impl Enemy {
             position,
             relative_hitbox,
             damaged_time: 0.0,
+            state: EnemyState::Alive, // Fix later
         }
     }
 
@@ -70,6 +91,10 @@ impl Enemy {
     }
 
     pub fn get_hit(&mut self, bullet: &mut Bullet) {}
+
+    pub fn is_dead(&self) -> bool {
+        !self.state.should_render()
+    }
 }
 
 pub struct EnemyFactory {}
@@ -79,15 +104,9 @@ impl EnemyFactory {
         rl: &mut RaylibHandle,
         thread: &RaylibThread,
         texture_registry: &mut TextureRegistry,
+        position: Vector2,
     ) -> Enemy {
-        let texture = match texture_registry.get("tee") {
-            None => {
-                let image = Image::load_image("resources/tee.png").unwrap();
-                let texture = rl.load_texture_from_image(thread, &image).unwrap();
-                texture_registry.add("tee", texture)
-            }
-            Some(ref texture) => texture.clone(),
-        };
+        let texture = texture_registry.load_if_not_existed("tee", "assets/tee.png", rl, thread);
 
         let mut tee_sprite = Sprite::new(vec![texture]);
         tee_sprite.set_scale(0.75);
@@ -96,7 +115,27 @@ impl EnemyFactory {
             tee_sprite,
             100.0,
             100.0,
-            Vector2::new(200.0, 200.0),
+            position,
+            Rectangle::new(-40.0, -40.0, 80.0, 80.0),
+        )
+    }
+
+    pub fn tae(
+        rl: &mut RaylibHandle,
+        thread: &RaylibThread,
+        texture_registry: &mut TextureRegistry,
+        position: Vector2,
+    ) -> Enemy {
+        let texture = texture_registry.load_if_not_existed("tae", "assets/tae.png", rl, thread);
+
+        let mut tae_sprite = Sprite::new(vec![texture]);
+        tae_sprite.set_scale(0.75);
+
+        Enemy::new(
+            tae_sprite,
+            150.0,
+            80.0,
+            position,
             Rectangle::new(-40.0, -40.0, 80.0, 80.0),
         )
     }
