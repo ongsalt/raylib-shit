@@ -2,11 +2,11 @@ use std::rc::Rc;
 
 use raylib::prelude::*;
 
-use crate::utils::is_visible;
+use crate::extensions::is_visible;
 
 #[derive(Clone, Debug)]
 pub struct Tile {
-    // allow overlaying | TODO rethink this
+    // i think we should compute this statically
     pub texture: Vec<Rc<Texture2D>>,
 }
 

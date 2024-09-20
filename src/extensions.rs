@@ -1,5 +1,5 @@
 use core::slice;
-use std::{backtrace, ffi::CString, os::windows::thread};
+use std::{backtrace, f32::consts::PI, ffi::CString, os::windows::thread};
 
 use raylib::{
     camera::Camera2D,

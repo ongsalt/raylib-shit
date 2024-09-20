@@ -1,14 +1,16 @@
+use std::f32::consts::PI;
+
 use raylib::prelude::*;
 
 use crate::{
     core::{
-        input_handler::poll_movement, texture_registry::TextureRegistry, Map, Sprite, Updatable,
+        input_handler::poll_movement, texture_registry::TextureRegistry, Map, Updatable,
     },
     data::maps::create_first_map,
     game::{
         bullet::Bullet,
         collectible::DroppedCollectible,
-        enemy::{self, Enemy, EnemyFactory},
+        enemy::Enemy,
         player::Player,
     },
     ui::Scene,
@@ -42,7 +44,8 @@ impl GameScene {
             map,
             paused: false,
             camera,
-            enemies: vec![EnemyFactory::tee(rl, thread, &mut texture_registry, Vector2::new(100.0, 100.0))],
+            // enemies: vec![EnemyFactory::tee(rl, thread, &mut texture_registry, Vector2::new(100.0, 100.0))],
+            enemies: vec![],
             player: Player::new(rl, thread, &mut texture_registry),
             texture_registry,
             collectibles: vec![],
@@ -122,7 +125,7 @@ impl Scene for GameScene {
         }
 
         // self.camera.offset is screen center
-        let direction = PI as f32 + rl.get_mouse_position().angle_to(self.camera.offset);
+        let direction = rl.get_mouse_position().angle_to(self.camera.offset) - PI;
 
         let dt = rl.get_frame_time();
 

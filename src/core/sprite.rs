@@ -15,11 +15,9 @@ pub struct Sprite {
     frame_index: usize,
     frame_duration: f32,
     frame_time: f32,
-    
 }
 
 impl Sprite {
-    // TODO: rename to from_texture and create another new(..) -> Self
     pub fn new(textures: Vec<Rc<Texture2D>>) -> Self {
         let offset = if textures.len() != 0 {
             Vector2::new(
@@ -52,10 +50,21 @@ impl Sprite {
         }
         d.draw_texture_ex(
             self.textures[self.frame_index].as_ref(),
-            self.position - self.offset * self.scale,
+            self.position - self.offset.rotated(self.rotation.to_radians()) * self.scale,
             self.rotation,
             self.scale,
             Color::WHITE,
+        );
+    }
+
+    // TODO: handle rotation
+    pub fn draw_bound(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
+        d.draw_rectangle(
+            (self.position.x - self.offset.x * self.scale) as i32,
+            (self.position.y - self.offset.y * self.scale) as i32,
+            (self.textures[0].width as f32 * self.scale) as i32,
+            (self.textures[0].height as f32 * self.scale) as i32,
+            Color::RED.alpha(0.2),
         );
     }
 
@@ -72,7 +81,6 @@ impl Sprite {
         );
     }
 
-    // TODO: call this thing
     pub fn update(&mut self, dt: f32) {
         self.frame_time += dt;
 
@@ -82,7 +90,7 @@ impl Sprite {
 
             if self.frame_index >= self.textures.len() {
                 self.frame_index = 0;
-            } 
+            }
         }
     }
 

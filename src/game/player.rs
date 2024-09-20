@@ -1,14 +1,14 @@
-use std::{rc::Rc, vec};
+use std::vec;
 
 use raylib::prelude::*;
 
 use crate::{
     core::{texture_registry::TextureRegistry, Sprite},
-    utils::{ImageExtension, RaylibHandleExtension},
+    extensions::{ImageExtension, RaylibHandleExtension},
 };
 
 use super::{
-    bullet::{self, Bullet},
+    bullet::Bullet,
     collectible::Item,
     launcher::{Launcher, LauncherFactory},
 };
@@ -43,12 +43,8 @@ impl Player {
             .collect();
 
         let mut sprite = Sprite::new(textures);
-        sprite.set_scale(0.5);
+        sprite.set_scale(0.4);
         sprite.set_frame_rate(24);
-
-        // let bullet_image = Image::load_image("assets/crystal_water.png").unwrap();
-        // let bullet_texture = rl.load_texture_from_image(thread, &bullet_image).unwrap();
-        // let bullet_textures = vec![texture_registry.add("bullet-1", bullet_texture)];
 
         Self {
             sprite,
@@ -79,8 +75,8 @@ impl Player {
         self.position += displacement * dt * self.speed();
     }
 
-    // TODO: make trait game object | update
     pub fn update(&mut self, dt: f32) {
+        self.sprite.update(dt);
         for launcher in &mut self.launchers {
             launcher.update(dt)
         }
@@ -104,5 +100,13 @@ impl Player {
     pub fn draw(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
         self.sprite.set_position(self.position);
         self.sprite.draw(d);
+        d.draw_text(
+            &format!("{:.?}", self.position),
+            self.position.x as i32,
+            self.position.y as i32,
+            12,
+            Color::WHITE,
+        );
+        // self.sprite.draw_bound(d);
     }
 }

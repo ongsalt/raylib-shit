@@ -2,7 +2,7 @@ use std::{collections::HashMap, rc::Rc};
 
 use raylib::prelude::*;
 
-// should have made this behind a rc
+// TODO: create a WeakHashMap
 pub struct TextureRegistry {
     registry: HashMap<String, Rc<Texture2D>>,
 }
@@ -21,6 +21,7 @@ impl TextureRegistry {
         rl: &mut RaylibHandle,
         thread: &RaylibThread,
     ) -> Rc<Texture2D> {
+        let filename = format!("assets/{filename}");
         let image =
             Image::load_image(&filename).expect(format!("File not found: {}", filename).as_str());
         let texture = rl

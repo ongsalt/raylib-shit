@@ -2,7 +2,6 @@ use raylib::{
     color::Color,
     math::{Rectangle, Vector2},
     prelude::{RaylibDraw, RaylibDrawHandle, RaylibMode2D},
-    texture::Image,
     RaylibHandle, RaylibThread,
 };
 
@@ -30,17 +29,21 @@ impl EnemyState {
 
 // Should create an object pool and make is_dead flag
 pub struct Enemy {
+    pub kind: &'static str,
     sprite: Sprite,
     speed: f32,
     hp: f32,
     position: Vector2,          // center
     relative_hitbox: Rectangle, // now is absolute
     damaged_time: f32,
+    // drop: ,
+    //  TODO: enemy-drop map
     state: EnemyState
 }
 
 impl Enemy {
     pub fn new(
+        kind: &'static str,
         sprite: Sprite,
         speed: f32,
         hp: f32,
@@ -48,6 +51,7 @@ impl Enemy {
         relative_hitbox: Rectangle,
     ) -> Self {
         Self {
+            kind,
             sprite,
             speed,
             hp,
@@ -106,12 +110,13 @@ impl EnemyFactory {
         texture_registry: &mut TextureRegistry,
         position: Vector2,
     ) -> Enemy {
-        let texture = texture_registry.load_if_not_existed("tee", "assets/tee.png", rl, thread);
+        let texture = texture_registry.load_if_not_existed("tee", "tee.png", rl, thread);
 
         let mut tee_sprite = Sprite::new(vec![texture]);
         tee_sprite.set_scale(0.75);
 
         Enemy::new(
+            "tee",
             tee_sprite,
             100.0,
             100.0,
@@ -120,23 +125,4 @@ impl EnemyFactory {
         )
     }
 
-    pub fn tae(
-        rl: &mut RaylibHandle,
-        thread: &RaylibThread,
-        texture_registry: &mut TextureRegistry,
-        position: Vector2,
-    ) -> Enemy {
-        let texture = texture_registry.load_if_not_existed("tae", "assets/tae.png", rl, thread);
-
-        let mut tae_sprite = Sprite::new(vec![texture]);
-        tae_sprite.set_scale(0.75);
-
-        Enemy::new(
-            tae_sprite,
-            150.0,
-            80.0,
-            position,
-            Rectangle::new(-40.0, -40.0, 80.0, 80.0),
-        )
-    }
 }

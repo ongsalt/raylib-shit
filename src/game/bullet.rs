@@ -8,11 +8,11 @@ use super::{
 
 // Or should I made a bullet type lookup map
 // then just pass bullet reference around
-
 pub struct BulletBuilder {
     pub sprite: Sprite,
     pub velocity: Vector2,
     pub position: Vector2,
+    rotation: f32,
     relative_hitbox: Rectangle,
     pub damage: f32,
     pub angular_velocity: f32,
@@ -25,6 +25,7 @@ impl BulletBuilder {
         sprite: Sprite,
         velocity: Vector2,
         position: Vector2,
+        rotation: f32, // In degrees
         relative_hitbox: Rectangle,
         damage: f32,
         angular_velocity: f32,
@@ -35,6 +36,7 @@ impl BulletBuilder {
             sprite,
             velocity,
             position,
+            rotation,
             relative_hitbox,
             damage,
             angular_velocity,
@@ -49,10 +51,11 @@ impl BulletBuilder {
             sprite: self.sprite.clone(),
             velocity: self.velocity,
             position: self.position,
+            rotation: self.rotation,
             relative_hitbox: self.relative_hitbox,
             damage: self.damage,
             angular_velocity: self.angular_velocity,
-            effects: self.effects.clone(), // TODO: make this a bit flag
+            effects: self.effects.clone(), // TODO: make this a bit flag or a registry
             lifetime: self.lifetime,
         }
     }
@@ -63,11 +66,12 @@ pub struct Bullet {
     sprite: Sprite,
     pub velocity: Vector2,
     pub position: Vector2,
+    pub rotation: f32,
     relative_hitbox: Rectangle,
     pub damage: f32,
-    pub angular_velocity: f32,
+    angular_velocity: f32,
     pub effects: Vec<StatusEffect>,
-    pub lifetime: f32,
+    lifetime: f32,
 }
 
 impl Bullet {
@@ -75,6 +79,7 @@ impl Bullet {
         sprite: Sprite,
         velocity: Vector2,
         position: Vector2,
+        rotation: f32,
         relative_hitbox: Rectangle,
         damage: f32,
         angular_velocity: f32,
@@ -85,6 +90,7 @@ impl Bullet {
             sprite,
             velocity,
             position,
+            rotation,
             relative_hitbox,
             damage,
             angular_velocity,
@@ -113,7 +119,9 @@ impl Bullet {
 
     pub fn draw(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
         self.sprite.set_position(self.position);
+        self.sprite.set_rotation(self.rotation);
         self.sprite.draw(d);
+        // self.sprite.draw_bound(d);
     }
 
     pub fn should_die(&self) -> bool {

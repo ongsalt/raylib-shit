@@ -15,13 +15,13 @@ pub fn create_first_map(
 
     let grass = texture_registry.load_if_not_existed(
         "tile:grass:001",
-        "assets/tiles/Grass 001.png",
+        "tiles/Grass 001.png",
         rl,
         thread,
     );
     let stone = texture_registry.load_if_not_existed(
         "tile:rock:001",
-        "assets/tiles/Rock 001.png",
+        "tiles/Rock 001.png",
         rl,
         thread,
     );
