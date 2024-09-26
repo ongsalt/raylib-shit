@@ -2,6 +2,8 @@ use std::rc::Rc;
 
 use raylib::prelude::*;
 
+use super::Drawable;
+
 // I should make a gif handler
 #[derive(Clone, Debug)]
 pub struct Sprite {
@@ -40,25 +42,8 @@ impl Sprite {
         }
     }
 
-    // pub fn from_resource() -> {
-
-    // }
-
-    pub fn draw(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
-        if self.textures.len() == 0 {
-            return;
-        }
-        d.draw_texture_ex(
-            self.textures[self.frame_index].as_ref(),
-            self.position - self.offset.rotated(self.rotation.to_radians()) * self.scale,
-            self.rotation,
-            self.scale,
-            Color::WHITE,
-        );
-    }
-
     // TODO: handle rotation
-    pub fn draw_bound(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
+    pub fn draw_bound(&self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
         d.draw_rectangle(
             (self.position.x - self.offset.x * self.scale) as i32,
             (self.position.y - self.offset.y * self.scale) as i32,
@@ -68,7 +53,7 @@ impl Sprite {
         );
     }
 
-    pub fn draw_with_tint(&mut self, tint: Color, d: &mut RaylibMode2D<RaylibDrawHandle>) {
+    pub fn draw_with_tint(&self, tint: Color, d: &mut RaylibMode2D<RaylibDrawHandle>) {
         if self.textures.len() == 0 {
             return;
         }
@@ -128,5 +113,20 @@ impl Sprite {
 
     pub fn frame_rate(&self) -> u32 {
         (1.0 / self.frame_duration) as u32
+    }
+}
+
+impl Drawable for Sprite {
+    fn draw(&self, d: &mut RaylibMode2D<RaylibDrawHandle>, camera: &Camera2D) {
+        if self.textures.len() == 0 {
+            return;
+        }
+        d.draw_texture_ex(
+            self.textures[self.frame_index].as_ref(),
+            self.position - self.offset.rotated(self.rotation.to_radians()) * self.scale,
+            self.rotation,
+            self.scale,
+            Color::WHITE,
+        );
     }
 }

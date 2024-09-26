@@ -3,7 +3,7 @@ use std::vec;
 use raylib::prelude::*;
 
 use crate::{
-    core::{texture_registry::TextureRegistry, Sprite},
+    core::{texture_registry::TextureRegistry, Drawable, Sprite},
     extensions::{ImageExtension, RaylibHandleExtension},
 };
 
@@ -19,7 +19,7 @@ pub const CAMERA_PADDING: f32 = PLAYER_SIZE / 2.0 + SCREEN_EDGE_PADDING;
 pub struct Player {
     sprite: Sprite,
     position: Vector2,
-    items: Vec<Item>,
+    items: Vec<&'static Item>,
     launchers: Vec<Launcher>,
     _speed: f32, // in pixel per sec
 }
@@ -76,10 +76,11 @@ impl Player {
     }
 
     pub fn update(&mut self, dt: f32) {
-        self.sprite.update(dt);
         for launcher in &mut self.launchers {
             launcher.update(dt)
         }
+        self.sprite.update(dt);
+        self.sprite.set_position(self.position);
     }
 
     // assumming camera offset is correctly set
@@ -96,17 +97,17 @@ impl Player {
         //     camera.target.y = self.position.y + camera.offset.y - CAMERA_PADDING;
         // }
     }
+}
 
-    pub fn draw(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
-        self.sprite.set_position(self.position);
-        self.sprite.draw(d);
-        d.draw_text(
-            &format!("{:.?}", self.position),
-            self.position.x as i32,
-            self.position.y as i32,
-            12,
-            Color::WHITE,
-        );
-        // self.sprite.draw_bound(d);
+impl Drawable for Player {
+    fn draw(&self, d: &mut RaylibMode2D<RaylibDrawHandle>, camera: &Camera2D) {
+        self.sprite.draw(d, camera);
+        // d.draw_text(
+        //     &format!("{:.?}", self.position),
+        //     self.position.x as i32,
+        //     self.position.y as i32,
+        //     12,
+        //     Color::WHITE,
+        // );
     }
 }

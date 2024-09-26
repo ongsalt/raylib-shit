@@ -4,17 +4,14 @@ use raylib::prelude::*;
 
 use crate::{
     core::{
-        input_handler::poll_movement, texture_registry::TextureRegistry, Map, Updatable,
+        input_handler::poll_movement, texture_registry::TextureRegistry, Drawable, Map, Updatable,
     },
     data::maps::create_first_map,
-    game::{
-        bullet::Bullet,
-        collectible::DroppedCollectible,
-        enemy::Enemy,
-        player::Player,
-    },
+    game::{bullet::Bullet, collectible::DroppedCollectible, enemy::Enemy, player::Player},
     ui::Scene,
 };
+
+use super::enemy;
 
 pub struct GameScene {
     map: Map,
@@ -97,19 +94,22 @@ impl Updatable for GameScene {
 
 impl GameScene {
     fn draw(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
-        // stage
-        // d.draw_rectangle(-10, -10, 1000, 1000, Color::GRAY);
         self.map.draw(d, &self.camera);
 
-        self.player.draw(d);
+        let mut drawables: Vec<Box<&dyn Drawable>> = vec![Box::new(&self.player)];
 
-        for bullet in &mut self.bullets {
-            bullet.draw(d);
+        for bullet in &self.bullets {
+            drawables.push(Box::new(bullet));
         }
 
         for enemy in &mut self.enemies {
-            enemy.draw(d);
-            // enemy.draw_hitbox(d);
+            drawables.push(Box::new(enemy));
+        }
+        
+        drawables.sort_unstable_by_key(|it| it.y_index());
+
+        for drawable in drawables {
+            drawable.draw(d, &self.camera);
         }
     }
 }
@@ -119,6 +119,7 @@ impl Scene for GameScene {
 
     fn run(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread) {
         // ------------ Setup shit --------------
+        // TODO: fix scene size and proportion and then scale it later
         if rl.is_window_resized() {
             self.camera.offset.x = (rl.get_screen_width() / 2) as f32;
             self.camera.offset.y = (rl.get_screen_height() / 2) as f32;

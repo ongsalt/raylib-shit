@@ -110,6 +110,7 @@ pub struct SpringSimulation {
     damping_ratio: f32, // Damping ratio must be non-negative
 }
 
+// TODO: refactor this - we dont need 2 seperate struct for this shit
 impl SpringSimulation {
     fn new(final_position: f32) -> Self {
         Self {

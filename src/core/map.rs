@@ -4,6 +4,8 @@ use raylib::prelude::*;
 
 use crate::extensions::is_visible;
 
+use super::Drawable;
+
 #[derive(Clone, Debug)]
 pub struct Tile {
     // i think we should compute this statically
@@ -43,9 +45,11 @@ impl Map {
             tile_scale,
         }
     }
+}
 
-    // Should not draw outside of screen
-    pub fn draw(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>, camera: &Camera2D) {
+impl Drawable for Map {
+    // Should build this once and not every frame
+    fn draw(&self, d: &mut RaylibMode2D<RaylibDrawHandle>, camera: &Camera2D) {
         for x in 0..self.width {
             for y in 0..self.height {
                 let tile = &self.tiles[(x + y * self.height) as usize];

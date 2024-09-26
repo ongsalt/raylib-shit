@@ -1,4 +1,4 @@
-use crate::core::Sprite;
+use crate::core::{Drawable, Sprite};
 use raylib::prelude::*;
 
 use super::{
@@ -47,17 +47,17 @@ impl BulletBuilder {
 
     // Accept buff
     pub fn build(&self) -> Bullet {
-        Bullet {
-            sprite: self.sprite.clone(),
-            velocity: self.velocity,
-            position: self.position,
-            rotation: self.rotation,
-            relative_hitbox: self.relative_hitbox,
-            damage: self.damage,
-            angular_velocity: self.angular_velocity,
-            effects: self.effects.clone(), // TODO: make this a bit flag or a registry
-            lifetime: self.lifetime,
-        }
+        Bullet::new(
+            self.sprite.clone(),
+            self.velocity,
+            self.position,
+            self.rotation,
+            self.relative_hitbox,
+            self.damage,
+            self.angular_velocity,
+            self.effects.clone(),
+            self.lifetime
+        )
     }
 }
 
@@ -102,6 +102,9 @@ impl Bullet {
     pub fn update(&mut self, dt: f32) {
         self.position += self.velocity * dt;
         self.lifetime -= dt;
+
+        self.sprite.set_position(self.position);
+        self.sprite.set_rotation(self.rotation);
     }
 
     pub fn hitbox(&self) -> Rectangle {
@@ -117,14 +120,14 @@ impl Bullet {
         enemy.hitbox().check_collision_recs(&self.hitbox())
     }
 
-    pub fn draw(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
-        self.sprite.set_position(self.position);
-        self.sprite.set_rotation(self.rotation);
-        self.sprite.draw(d);
-        // self.sprite.draw_bound(d);
-    }
-
     pub fn should_die(&self) -> bool {
         self.lifetime <= 0.0
     }
 }
+
+impl Drawable for Bullet {
+    fn draw(&self, d: &mut RaylibMode2D<RaylibDrawHandle>, camera: &Camera2D) {
+        self.sprite.draw(d, camera);
+    }
+}
+

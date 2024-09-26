@@ -2,14 +2,13 @@
 
 use game::scene::GameScene;
 use raylib::prelude::*;
-use scenes::home::HomeScene;
+use ui::scenes::home::HomeScene;
 use ui::Scene;
+use ui::animation;
 
-mod animation;
 mod core;
 mod data;
 mod game;
-mod scenes;
 mod ui;
 mod extensions;
 

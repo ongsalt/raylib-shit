@@ -5,7 +5,7 @@ use raylib::{
     RaylibHandle, RaylibThread,
 };
 
-use crate::core::{texture_registry::TextureRegistry, Sprite};
+use crate::core::{texture_registry::TextureRegistry, Drawable, Sprite};
 
 use super::bullet::{self, Bullet};
 
@@ -13,7 +13,7 @@ pub enum EnemyState {
     Ready, // ready to be use
     Alive,
     Dying, // playing dead animation
-    Died, // can be reuse later
+    Died,  // can be reuse later
 }
 
 impl EnemyState {
@@ -38,7 +38,7 @@ pub struct Enemy {
     damaged_time: f32,
     // drop: ,
     //  TODO: enemy-drop map
-    state: EnemyState
+    state: EnemyState,
 }
 
 impl Enemy {
@@ -65,15 +65,7 @@ impl Enemy {
     pub fn update(&mut self, dt: f32, player_position: Vector2) {
         self.position += (player_position - self.position).normalized() * self.speed * dt;
         self.damaged_time -= dt;
-    }
-
-    pub fn draw(&mut self, d: &mut RaylibMode2D<RaylibDrawHandle>) {
         self.sprite.set_position(self.position);
-        self.sprite.draw(d);
-        if self.damaged_time > 0.0 {
-            self.sprite
-                .draw_with_tint(Color::new(252, 146, 139, 255), d);
-        }
     }
 
     pub fn hitbox(&self) -> Rectangle {
@@ -101,6 +93,16 @@ impl Enemy {
     }
 }
 
+impl Drawable for Enemy {
+    fn draw(&self, d: &mut RaylibMode2D<RaylibDrawHandle>, camera: &raylib::prelude::Camera2D) {
+        self.sprite.draw(d, camera);
+        if self.damaged_time > 0.0 {
+            self.sprite
+                .draw_with_tint(Color::new(252, 146, 139, 255), d);
+        }
+    }
+}
+
 pub struct EnemyFactory {}
 
 impl EnemyFactory {
@@ -125,4 +127,16 @@ impl EnemyFactory {
         )
     }
 
+    pub fn create_by_kind(
+        enemy_kind: &'static str,
+        rl: &mut RaylibHandle,
+        thread: &RaylibThread,
+        texture_registry: &mut TextureRegistry,
+        position: Vector2,
+    ) -> Option<Enemy> {
+        match enemy_kind {
+            "tee" => Some(Self::tee(rl, thread, texture_registry, position)),
+            _ => None,
+        }
+    }
 }

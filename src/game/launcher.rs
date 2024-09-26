@@ -29,7 +29,6 @@ impl Launcher {
         }
     }
 
-    // Should i send a command instead
     pub fn launch(&mut self, position: Vector2, direction: f32) -> Vec<Bullet> {
         if self.cooldown_left > 0. {
             return vec![];
