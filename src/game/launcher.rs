@@ -1,4 +1,4 @@
-use std::{f32::consts::PI, vec};
+use std::vec;
 
 use raylib::prelude::*;
 
@@ -63,7 +63,7 @@ impl LauncherFactory {
                 Vector2::zero(),
                 90.0,
                 Rectangle::new(-10.0, 10.0, 20.0, 20.0),
-                100.0,
+                10.0,
                 0.0,
                 vec![],
                 5.0,

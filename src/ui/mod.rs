@@ -1,4 +1,5 @@
 pub mod scenes;
+pub mod overlays;
 pub mod animation;
 use raylib::prelude::*;
 
@@ -9,6 +10,8 @@ pub trait Scene {
     fn setup(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread);
     fn reset(&mut self) {}
     fn run(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread) {}
-    fn pause(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread) {}
-    fn resume(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread) {}
+}
+
+pub trait Overlay {
+    fn draw(&mut self, d: &mut RaylibDrawHandle);
 }

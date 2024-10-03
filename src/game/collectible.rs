@@ -1,6 +1,6 @@
 use raylib::ffi::Vector2;
 
-use crate::core::{Drawable, Sprite};
+use crate::core::Drawable;
 
 // There is no sprite here
 pub struct DroppedCollectible {

@@ -1,5 +1,5 @@
 use crate::core::{
-    texture_registry::{self, TextureRegistry},
+    texture_registry::{TextureRegistry},
     Map, Tile,
 };
 use raylib::prelude::*;

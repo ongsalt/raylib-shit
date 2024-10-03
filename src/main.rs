@@ -13,7 +13,7 @@ mod ui;
 mod extensions;
 
 fn main() {
-    let (mut rl, mut thread) = raylib::init().size(720, 560).resizable().build();
+    let (mut rl, thread) = raylib::init().size(720, 560).resizable().build();
     rl.set_target_fps(60);
 
     let mut scenes: Vec<Box<dyn Scene>> = vec![

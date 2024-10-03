@@ -10,13 +10,16 @@ use crate::{
 use super::{
     bullet::Bullet,
     collectible::Item,
-    launcher::{Launcher, LauncherFactory},
+    launcher::{self, Launcher, LauncherFactory},
 };
 
 pub const PLAYER_SIZE: f32 = 80.0;
 pub const SCREEN_EDGE_PADDING: f32 = 20.0;
 pub const CAMERA_PADDING: f32 = PLAYER_SIZE / 2.0 + SCREEN_EDGE_PADDING;
 pub struct Player {
+    hp: f32,
+    mp: f32,
+    exp: f32,
     sprite: Sprite,
     position: Vector2,
     items: Vec<&'static Item>,
@@ -26,6 +29,9 @@ pub struct Player {
 
 impl Player {
     pub fn new(
+        hp: f32,
+        mp: f32,
+        launchers: Vec<Launcher>,
         rl: &mut RaylibHandle,
         thread: &RaylibThread,
         texture_registry: &mut TextureRegistry,
@@ -49,9 +55,12 @@ impl Player {
         Self {
             sprite,
             items: vec![],
-            launchers: vec![LauncherFactory::simple(rl, thread, texture_registry)],
+            launchers,
             position: Vector2::zero(),
             _speed: 200.0,
+            hp,
+            mp,
+            exp: 0.0,
         }
     }
 
@@ -96,6 +105,22 @@ impl Player {
         // } else if camera.target.y - camera.offset.y + CAMERA_PADDING > self.position.y {
         //     camera.target.y = self.position.y + camera.offset.y - CAMERA_PADDING;
         // }
+    }
+
+    pub fn hp(&self) -> f32 {
+        self.hp
+    }
+
+    pub fn mp(&self) -> f32 {
+        self.mp
+    }
+
+    pub fn exp(&self) -> f32 {
+        self.exp
+    }
+
+    pub fn level(&self) -> i32 {
+        self.mp as i32 // TODO: calculcate this some how
     }
 }
 

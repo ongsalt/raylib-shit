@@ -42,7 +42,7 @@ impl<T> Grid<T> where T: Copy {
 
 // produce result between 0-1
 pub fn create_perlin_noise(scale: u32, width: usize, height: usize) -> Grid<f32> {
-    let mut grid: Grid<f32> = Grid::new(width, height);
+    let grid: Grid<f32> = Grid::new(width, height);
     let mut vectors: Grid<Vector2> = Grid::new(width, height);
 
     for _ in 0..(width * height) {

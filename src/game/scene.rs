@@ -8,13 +8,14 @@ use crate::{
     },
     data::maps::create_first_map,
     game::{bullet::Bullet, collectible::DroppedCollectible, enemy::Enemy, player::Player},
-    ui::Scene,
+    ui::{overlays::hud::HudOverlay, Overlay, Scene},
 };
 
-use super::enemy;
+use super::{enemy::EnemyFactory, launcher::LauncherFactory, player};
 
 pub struct GameScene {
     map: Map,
+    hud: HudOverlay,
     paused: bool,
     camera: Camera2D,
     player: Player,
@@ -34,16 +35,19 @@ impl GameScene {
         camera.offset.y = (rl.get_screen_height() / 2) as f32;
 
         let mut texture_registry = TextureRegistry::new();
-
         let map = create_first_map(rl, thread, &mut texture_registry);
+
+        let launchers = vec![LauncherFactory::simple(rl, thread, &mut texture_registry)];
+        let player = Player::new(100.0, 100.0, launchers, rl, thread, &mut texture_registry);
 
         Self {
             map,
+            hud: HudOverlay::new(),
             paused: false,
             camera,
-            // enemies: vec![EnemyFactory::tee(rl, thread, &mut texture_registry, Vector2::new(100.0, 100.0))],
-            enemies: vec![],
-            player: Player::new(rl, thread, &mut texture_registry),
+            enemies: vec![EnemyFactory::tee(rl, thread, &mut texture_registry, Vector2::new(100.0, 100.0))],
+            // enemies: vec![],
+            player,
             texture_registry,
             collectibles: vec![],
             bullets: vec![],
@@ -105,7 +109,7 @@ impl GameScene {
         for enemy in &mut self.enemies {
             drawables.push(Box::new(enemy));
         }
-        
+
         drawables.sort_unstable_by_key(|it| it.y_index());
 
         for drawable in drawables {
@@ -144,15 +148,11 @@ impl Scene for GameScene {
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(Color::BLACK);
 
-        let mut d = d.begin_mode2D(&self.camera);
-        self.draw(&mut d);
-    }
+        {
+            let mut d = d.begin_mode2D(&self.camera);
+            self.draw(&mut d);
+        }
 
-    fn pause(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread) {
-        todo!()
-    }
-
-    fn resume(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread) {
-        todo!()
+        self.hud.draw(&mut d);
     }
 }

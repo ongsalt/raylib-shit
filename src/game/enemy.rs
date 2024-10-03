@@ -7,7 +7,7 @@ use raylib::{
 
 use crate::core::{texture_registry::TextureRegistry, Drawable, Sprite};
 
-use super::bullet::{self, Bullet};
+use super::bullet::{Bullet};
 
 pub enum EnemyState {
     Ready, // ready to be use
@@ -89,7 +89,8 @@ impl Enemy {
     pub fn get_hit(&mut self, bullet: &mut Bullet) {}
 
     pub fn is_dead(&self) -> bool {
-        !self.state.should_render()
+        // !self.state.should_render()
+        self.hp <= 0.0
     }
 }
 
@@ -112,7 +113,7 @@ impl EnemyFactory {
         texture_registry: &mut TextureRegistry,
         position: Vector2,
     ) -> Enemy {
-        let texture = texture_registry.load_if_not_existed("tee", "tee.png", rl, thread);
+        let texture = texture_registry.load_if_not_existed("tee", "enemies/tee.png", rl, thread);
 
         let mut tee_sprite = Sprite::new(vec![texture]);
         tee_sprite.set_scale(0.75);

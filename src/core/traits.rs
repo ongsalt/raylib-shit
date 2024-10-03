@@ -1,9 +1,5 @@
 use raylib::prelude::*;
 
-pub trait Preloadable {
-    fn preload(&mut self);
-}
-
 pub trait Updatable {
     fn update(&mut self, dt: f32);
 }

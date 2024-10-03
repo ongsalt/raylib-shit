@@ -2,7 +2,7 @@ use crate::core::{Drawable, Sprite};
 use raylib::prelude::*;
 
 use super::{
-    effect::{self, StatusEffect},
+    effect::{StatusEffect},
     enemy::Enemy,
 };
 
