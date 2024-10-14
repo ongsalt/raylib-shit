@@ -31,7 +31,6 @@ pub struct SpringAnimator {
     spec: SpringSpec,
     target: f32,
     simulation: Option<SpringSimulation>,
-
     last_velocity: f32,
 }
 
@@ -146,6 +145,7 @@ impl SpringSimulation {
         -k * adjusted_displacement - c * last_velocity
     }
 
+    // TODO: refactor this
     fn update(&mut self, last_displacement: f32, last_velocity: f32, dt: f32) -> Motion {
         let adjusted_displacement = last_displacement - self.final_position;
         let k = self.damping_ratio * self.damping_ratio;

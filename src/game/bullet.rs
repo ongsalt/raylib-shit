@@ -131,3 +131,9 @@ impl Drawable for Bullet {
     }
 }
 
+// Need to do this because some type of bullet just dont follow straight path 
+pub trait _Bullet: Drawable {
+    fn should_die(&self) -> bool;
+    fn hitbox(&self) -> Rectangle;
+    fn update(&mut self, dt: f32);
+}

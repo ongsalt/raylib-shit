@@ -1,7 +1,6 @@
 # Title
 
 # Todo
-- hp bar
 - buff and collectible
 - enemy spawning pattern
 - more enemy type

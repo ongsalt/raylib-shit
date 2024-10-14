@@ -14,6 +14,7 @@ use crate::{
 use super::{enemy::EnemyFactory, launcher::LauncherFactory, player};
 
 pub struct GameScene {
+    render_texture: RenderTexture2D,
     map: Map,
     hud: HudOverlay,
     paused: bool,
@@ -51,6 +52,7 @@ impl GameScene {
             texture_registry,
             collectibles: vec![],
             bullets: vec![],
+            render_texture: rl.load_render_texture(&thread, 720, 560).unwrap(),
         }
     }
 }
@@ -154,5 +156,9 @@ impl Scene for GameScene {
         }
 
         self.hud.draw(&mut d);
+    }
+    
+    fn render_texture(&self) -> &RenderTexture2D {
+        &self.render_texture
     }
 }
