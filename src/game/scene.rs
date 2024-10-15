@@ -6,18 +6,18 @@ use crate::{
     core::{
         input_handler::poll_movement, texture_registry::TextureRegistry, Drawable, Map, Updatable,
     },
-    data::maps::create_first_map,
+    data::maps::{create_first_map, first_spawn_timing},
     game::{bullet::Bullet, collectible::DroppedCollectible, enemy::Enemy, player::Player},
     ui::{overlays::hud::HudOverlay, Overlay, Scene},
 };
 
-use super::{enemy::EnemyFactory, launcher::LauncherFactory, player};
+use super::{enemy::EnemyFactory, launcher::LauncherFactory, spawning::SpawnTiming};
 
 pub struct GameScene {
     render_texture: RenderTexture2D,
     map: Map,
     hud: HudOverlay,
-    paused: bool,
+    spawn_timer: SpawnTimer,
     camera: Camera2D,
     player: Player,
     enemies: Vec<Enemy>,
@@ -44,56 +44,20 @@ impl GameScene {
         Self {
             map,
             hud: HudOverlay::new(),
-            paused: false,
+            spawn_timer: SpawnTimer::new(first_spawn_timing()),
             camera,
-            enemies: vec![EnemyFactory::tee(rl, thread, &mut texture_registry, Vector2::new(100.0, 100.0))],
+            enemies: vec![EnemyFactory::tee(
+                rl,
+                thread,
+                &mut texture_registry,
+                Vector2::new(100.0, 100.0),
+            )],
             // enemies: vec![],
             player,
             texture_registry,
             collectibles: vec![],
             bullets: vec![],
             render_texture: rl.load_render_texture(&thread, 720, 560).unwrap(),
-        }
-    }
-}
-
-impl Updatable for GameScene {
-    fn update(&mut self, dt: f32) {
-        self.player.update(dt);
-
-        let mut bullets_to_remove = vec![];
-        let mut enemies_to_remove = vec![];
-        for (bullet_index, bullet) in self.bullets.iter_mut().enumerate() {
-            bullet.update(dt);
-
-            if bullet.should_die() {
-                bullets_to_remove.push(bullet_index)
-            }
-
-            for (enemy_index, enemy) in &mut self.enemies.iter_mut().enumerate() {
-                if bullet.is_collided(&enemy) {
-                    enemy.take_damage(bullet.damage);
-                    bullets_to_remove.push(bullet_index);
-
-                    // TODO: object pool
-                    if enemy.is_dead() {
-                        enemies_to_remove.push(enemy_index)
-                    }
-                }
-            }
-        }
-
-        for enemy in &mut self.enemies {
-            enemy.update(dt, self.player.position());
-        }
-
-        // Reverse becuase array will shift if we remove from the first
-        for index in bullets_to_remove.into_iter().rev() {
-            self.bullets.remove(index);
-        }
-
-        for index in enemies_to_remove.into_iter().rev() {
-            let dead = self.enemies.remove(index);
         }
     }
 }
@@ -116,6 +80,64 @@ impl GameScene {
 
         for drawable in drawables {
             drawable.draw(d, &self.camera);
+        }
+    }
+
+    fn update(&mut self, dt: f32, rl: &mut RaylibHandle, thread: &RaylibThread) {
+        self.player.update(dt);
+        self.spawn_timer.update(
+            dt,
+            self.player.position(),
+            &mut self.enemies,
+            rl,
+            thread,
+            &mut self.texture_registry,
+        );
+
+        let mut bullets_to_remove = vec![];
+        let mut enemies_to_remove = vec![];
+        for (bullet_index, bullet) in self.bullets.iter_mut().enumerate() {
+            bullet.update(dt);
+
+            let mut will_be_removed = false;
+            if bullet.should_die() {
+                // die due to timeout
+                bullets_to_remove.push(bullet_index);
+                will_be_removed = true;
+            }
+
+            for (enemy_index, enemy) in &mut self.enemies.iter_mut().enumerate() {
+                if bullet.is_collided(&enemy) {
+                    if bullet.still_piercable() {
+                        // TODO: make an internal cooldown for bullet and enemy pair
+                        enemy.take_damage(bullet.damage);
+                        bullet.hit();
+
+                        if bullet.should_die() && !will_be_removed {
+                            bullets_to_remove.push(bullet_index);
+                            will_be_removed = true;
+                        }
+                    }
+
+                    // TODO: object pool
+                    if enemy.is_dead() {
+                        enemies_to_remove.push(enemy_index)
+                    }
+                }
+            }
+        }
+
+        for enemy in &mut self.enemies {
+            enemy.update(dt, self.player.position());
+        }
+
+        // Reverse becuase array will shift if we remove from the first
+        for index in bullets_to_remove.into_iter().rev() {
+            self.bullets.remove(index);
+        }
+
+        for index in enemies_to_remove.into_iter().rev() {
+            let dead = self.enemies.remove(index);
         }
     }
 }
@@ -145,7 +167,7 @@ impl Scene for GameScene {
 
         self.player.move_camera_if_should(&mut self.camera);
 
-        self.update(dt);
+        self.update(dt, rl, thread);
 
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(Color::BLACK);
@@ -157,8 +179,53 @@ impl Scene for GameScene {
 
         self.hud.draw(&mut d);
     }
-    
+
     fn render_texture(&self) -> &RenderTexture2D {
         &self.render_texture
+    }
+}
+
+// TODO: make this thing more complex
+struct SpawnTimer {
+    pub time: f32,
+    pub timing: Vec<SpawnTiming>,
+    next_spawn: f32,
+    next_pattern: usize,
+}
+
+impl SpawnTimer {
+    pub fn new(timing: Vec<SpawnTiming>) -> Self {
+        Self {
+            time: 0.0,
+            next_spawn: if timing.is_empty() {
+                0.0
+            } else {
+                timing[0].time
+            },
+            timing,
+            next_pattern: 0,
+        }
+    }
+
+    fn update(
+        &mut self,
+        dt: f32,
+        center: Vector2,
+        enemies: &mut Vec<Enemy>,
+        rl: &mut RaylibHandle,
+        thread: &RaylibThread,
+        texture_registry: &mut TextureRegistry,
+    ) {
+        self.time += dt;
+        if self.time >= self.next_spawn {
+            // spawn it
+            self.timing[self.next_pattern].apply(center, enemies, rl, thread, texture_registry);
+            if self.next_pattern + 1 < self.timing.len() {
+                self.next_pattern += 1;
+                self.next_spawn = self.timing[self.next_pattern].time;
+            } else {
+                self.next_spawn = f32::INFINITY;
+            }
+        }
     }
 }

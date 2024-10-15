@@ -106,8 +106,8 @@ impl Scene for HomeScene {
         );
 
         {
-            self.box_blur_shader.set_shader_value(self.blur_radius_location, self.blur_radius.value());
-            let mut d = d.begin_shader_mode(&self.box_blur_shader);
+            // self.box_blur_shader.set_shader_value(self.blur_radius_location, self.blur_radius.value());
+            // let mut d = d.begin_shader_mode(&self.box_blur_shader);
             d.draw_texture_pro(
                 &self.render_texture,
                 source_rec,

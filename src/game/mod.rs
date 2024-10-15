@@ -6,4 +6,4 @@ pub mod effect;
 pub mod launcher;
 pub mod scene;
 pub mod map_generation;
-pub mod spawn_pattern;
+pub mod spawning;

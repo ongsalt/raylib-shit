@@ -1,10 +1,7 @@
 use crate::core::{Drawable, Sprite};
 use raylib::prelude::*;
 
-use super::{
-    effect::{StatusEffect},
-    enemy::Enemy,
-};
+use super::{effect::StatusEffect, enemy::Enemy};
 
 // Or should I made a bullet type lookup map
 // then just pass bullet reference around
@@ -18,6 +15,7 @@ pub struct BulletBuilder {
     pub angular_velocity: f32,
     pub effects: Vec<StatusEffect>,
     pub lifetime: f32,
+    pub piercing_count: u32,
 }
 
 impl BulletBuilder {
@@ -31,6 +29,7 @@ impl BulletBuilder {
         angular_velocity: f32,
         effects: Vec<StatusEffect>,
         lifetime: f32,
+        piercing_count: u32
     ) -> Self {
         Self {
             sprite,
@@ -42,6 +41,7 @@ impl BulletBuilder {
             angular_velocity,
             effects,
             lifetime,
+            piercing_count
         }
     }
 
@@ -56,7 +56,8 @@ impl BulletBuilder {
             self.damage,
             self.angular_velocity,
             self.effects.clone(),
-            self.lifetime
+            self.lifetime,
+            self.piercing_count
         )
     }
 }
@@ -72,8 +73,10 @@ pub struct Bullet {
     angular_velocity: f32,
     pub effects: Vec<StatusEffect>,
     lifetime: f32,
+    pub piercing_count: u32,
 }
 
+// TODO: make this a trait argggggghhhh
 impl Bullet {
     pub fn new(
         sprite: Sprite,
@@ -85,6 +88,7 @@ impl Bullet {
         angular_velocity: f32,
         effects: Vec<StatusEffect>,
         lifetime: f32,
+        piercing_count: u32,
     ) -> Self {
         Self {
             sprite,
@@ -96,6 +100,7 @@ impl Bullet {
             angular_velocity,
             effects,
             lifetime,
+            piercing_count
         }
     }
 
@@ -117,11 +122,20 @@ impl Bullet {
     }
 
     pub fn is_collided(&self, enemy: &Enemy) -> bool {
-        enemy.hitbox().check_collision_recs(&self.hitbox())
+        !self.should_die() && enemy.hitbox().check_collision_recs(&self.hitbox())
+    }
+
+    pub fn still_piercable(&self) -> bool {
+        self.piercing_count > 0 && self.lifetime > 0.0
+    }
+
+    // TODO: should take in enemy
+    pub fn hit(&mut self) {
+        self.piercing_count -= 1;
     }
 
     pub fn should_die(&self) -> bool {
-        self.lifetime <= 0.0
+        !self.still_piercable()
     }
 }
 
@@ -131,7 +145,7 @@ impl Drawable for Bullet {
     }
 }
 
-// Need to do this because some type of bullet just dont follow straight path 
+// Need to do this because some type of bullet just dont follow straight path
 pub trait _Bullet: Drawable {
     fn should_die(&self) -> bool;
     fn hitbox(&self) -> Rectangle;
